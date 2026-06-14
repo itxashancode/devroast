@@ -93,6 +93,21 @@ export async function GET(request: NextRequest) {
     // 5. Calculate scores
     const devScore = calculateDevScore(profile, repos);
 
+    // 5b. Top 5 recently-pushed non-fork repos for the "Latest Repos" card
+    const topRepos = repos
+      .filter((r) => !r.fork)
+      .sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime())
+      .slice(0, 5)
+      .map((r) => ({
+        name: r.name,
+        html_url: r.html_url,
+        description: r.description,
+        language: r.language,
+        stargazers_count: r.stargazers_count,
+        forks_count: r.forks_count,
+        pushed_at: r.pushed_at,
+      }));
+
     // 6. Generate LLM roast
     const roast = await generateRoast(profile, devScore);
 
@@ -129,7 +144,7 @@ export async function GET(request: NextRequest) {
       });
     if (leaderboardError) throw leaderboardError;
 
-    return NextResponse.json({ profile, scores: devScore, roast });
+    return NextResponse.json({ profile, scores: devScore, roast, topRepos });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
 
