@@ -1,0 +1,27 @@
+# DevRoast
+
+> The AI-powered GitHub Developer Report Card.
+
+DevRoast is a dynamic Proof-of-Work (PoW) generator and scoring engine for software engineers. It fetches real-time public repository data from the GitHub REST API and calculates a weighted "Dev Score".
+
+## Core Scoring Mechanics
+The Dev Score (out of 100) is calculated based on four primary vectors:
+- **Impact (40%)**: Total stars and forks across public repositories.
+- **Activity (30%)**: Commit frequency and recency of updates.
+- **Versatility (15%)**: Number of unique programming languages utilized.
+- **Clout (15%)**: Follower-to-following ratio and sheer follower volume.
+
+## AI Roast Generation
+After calculation, DevRoast uses the Groq API (Llama 3) to generate a customized, humorous "roast" based on the developer's exact statistics. The application also maintains a global leaderboard of scanned profiles.
+
+## Important Links
+- Home: https://devroast.vercel.app
+- Leaderboard: https://devroast.vercel.app/leaderboard
+- Privacy Policy: https://devroast.vercel.app/privacy
+
+## Architecture & Tech Stack
+- **Data Integration**: Real-time GitHub REST API fetching.
+- **Engine**: Pure scoring engine logic for mathematical sub-score calculation.
+- **Database**: Caching and leaderboard tracking via MongoDB Atlas.
+- **LLM**: Generative AI roasts via Groq.
+- **Frontend/Framework**: Built with Next.js 15 App Router, Tailwind CSS v4, TypeScript, and @chenglou/pretext for zero-layout-shift UI text streaming.
