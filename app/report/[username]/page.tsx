@@ -203,8 +203,22 @@ export default function ReportPage() {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
   } as const;
 
+  // --- Dynamic Sizing Logic for Bento Grid ---
+  // We use a baseline grid row height of 120px. We calculate how many rows each card needs based on content.
+  const roastWords = roast.split(/\s+/).length;
+  // If >60 words, span 4 rows. >30 words, span 3 rows. Else 2 rows.
+  const roastRowSpan = roastWords > 60 ? 4 : roastWords > 30 ? 3 : 2;
+  
+  const langCount = Object.keys(scores.languageBreakdown).length;
+  // Languages: usually 2 rows is enough, if >5 langs span 3 rows.
+  const langRowSpan = langCount > 5 ? 3 : 2;
+  
+  const tipsCount = scores.tips?.length || 0;
+  // Action Plan: >2 tips = 3 rows, else 2 rows.
+  const tipsRowSpan = tipsCount > 2 ? 3 : 2;
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12">
       {/* Top navigation */}
       <motion.div 
         initial={{ opacity: 0 }}
@@ -219,18 +233,18 @@ export default function ReportPage() {
         </a>
       </motion.div>
 
-      {/* Bento Grid */}
+      {/* Dynamic Bento Grid */}
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-4 sm:gap-4"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 grid-flow-row-dense auto-rows-[120px]"
       >
 
-        {/* ── Developer Profile Card (full width) ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-4">
-          <BentoCard colSpan="xl" accent>
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+        {/* ── Developer Profile Card (full width, approx 2 rows) ── */}
+        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-2">
+          <BentoCard colSpan="xl" rowSpan={2} accent className="rounded-3xl bg-surface-header p-6 sm:p-8 hover:bg-surface-hover">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6 h-full justify-center">
               {/* Avatar */}
               <div className="relative shrink-0">
                 <img
@@ -292,79 +306,76 @@ export default function ReportPage() {
           </BentoCard>
         </motion.div>
 
-        {/* ── Overall Dev Score (large) ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2">
-          <BentoCard title="Dev Score" colSpan="md">
-            <div className="flex h-full items-center justify-center py-2">
-              <ScoreGauge score={scores.totalScore} label="Overall" size={150} strokeWidth={10} />
+        {/* ── AI Roast — HERO card (Dynamic rows, spans 2 cols) ── */}
+        <motion.div variants={cardVariants} className={`col-span-1 sm:col-span-2 row-span-${roastRowSpan}`}>
+          {/* Outer glow wrapper */}
+          <div className="relative rounded-3xl h-full" style={{ boxShadow: "0 0 40px rgba(168,85,247,0.14), 0 0 80px rgba(168,85,247,0.06)" }}>
+            {/* Subtle radial purple gradient backdrop */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-3xl opacity-100"
+              style={{
+                background:
+                  "radial-gradient(ellipse at top left, rgba(168,85,247,0.11) 0%, rgba(46,217,160,0.04) 60%, transparent 100%)",
+              }}
+            />
+            <BentoCard
+              title="AI Roast"
+              colSpan="md"
+              rowSpan={roastRowSpan as any}
+              hero
+              className="rounded-3xl bg-surface-roast p-7 sm:p-9 border-accent-secondary/30 h-full"
+            >
+              <RoastCard roast={roast} username={profile.login} />
+            </BentoCard>
+          </div>
+        </motion.div>
+
+        {/* ── Overall Dev Score (large ring, 1 col, 2 rows) ── */}
+        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-1 row-span-2">
+          <BentoCard title="Dev Score" colSpan="sm" rowSpan={2} className="rounded-3xl bg-surface-score p-6 sm:p-8 hover:bg-surface-hover h-full">
+            <div className="flex h-full items-center justify-center py-4">
+              <ScoreGauge score={scores.totalScore} label="Overall" size={160} strokeWidth={11} />
             </div>
           </BentoCard>
         </motion.div>
 
-        {/* ── AI Roast ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2">
-          <BentoCard title="AI Roast" colSpan="md">
-            <RoastCard roast={roast} username={profile.login} />
+        {/* ── Sub-metrics Grouped (1 col, 2 rows) ── */}
+        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-1 row-span-2">
+          <BentoCard title="Core Metrics" colSpan="sm" rowSpan={2} className="rounded-3xl bg-surface-subscore p-4 sm:p-5 hover:bg-surface-hover h-full">
+            <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
+              <div className="flex items-center justify-center p-2 rounded-2xl bg-surface/50 border border-white/5"><ScoreGauge score={scores.impactScore} label="Impact" size={72} strokeWidth={6} /></div>
+              <div className="flex items-center justify-center p-2 rounded-2xl bg-surface/50 border border-white/5"><ScoreGauge score={scores.activityScore} label="Activity" size={72} strokeWidth={6} /></div>
+              <div className="flex items-center justify-center p-2 rounded-2xl bg-surface/50 border border-white/5"><ScoreGauge score={scores.versatilityScore} label="Versatility" size={72} strokeWidth={6} /></div>
+              <div className="flex items-center justify-center p-2 rounded-2xl bg-surface/50 border border-white/5"><ScoreGauge score={scores.cloutScore} label="Clout" size={72} strokeWidth={6} /></div>
+            </div>
           </BentoCard>
         </motion.div>
 
-        {/* ── Languages ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2">
-          <BentoCard title="Language Breakdown" colSpan="md">
+        {/* ── Languages (Dynamic rows, 1 col) ── */}
+        <motion.div variants={cardVariants} className={`col-span-1 sm:col-span-1 row-span-${langRowSpan}`}>
+          <BentoCard title="Languages" colSpan="sm" rowSpan={langRowSpan as any} className="rounded-2xl bg-surface-languages p-5 sm:p-6 hover:bg-surface-hover h-full">
             <LanguageBreakdown languages={scores.languageBreakdown} />
           </BentoCard>
         </motion.div>
 
-        {/* ── Action/Improvement Plan Tips ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2">
-          <BentoCard title="Action Plan" colSpan="md">
+        {/* ── Action Plan (Dynamic rows, spans up to 2 cols based on availability) ── */}
+        <motion.div variants={cardVariants} className={`col-span-1 sm:col-span-2 row-span-${tipsRowSpan}`}>
+          <BentoCard title="Action Plan" colSpan="md" rowSpan={tipsRowSpan as any} className="rounded-2xl bg-surface-action p-5 sm:p-6 hover:bg-surface-hover h-full">
             <div className="flex flex-col gap-3.5 py-1">
               {scores.tips && scores.tips.length > 0 ? (
                 scores.tips.map((tip, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-sm text-text-secondary leading-relaxed">
-                    <span className="text-accent text-lg mt-[-2px]">✦</span>
+                    <span className="text-accent-secondary text-lg mt-[-2px]">✦</span>
                     <p>{tip}</p>
                   </div>
                 ))
               ) : (
                 <div className="flex items-start gap-3 text-sm text-text-secondary leading-relaxed">
-                  <span className="text-accent text-lg mt-[-2px]">✦</span>
+                  <span className="text-accent-secondary text-lg mt-[-2px]">✦</span>
                   <p>Your profile is solid! Focus on building high-impact tools or open source contributions to keep scaling your score.</p>
                 </div>
               )}
-            </div>
-          </BentoCard>
-        </motion.div>
-
-        {/* ── Sub-score cards ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-1">
-          <BentoCard title="Impact" colSpan="sm">
-            <div className="flex items-center justify-center py-2">
-              <ScoreGauge score={scores.impactScore} label="Stars & Forks" size={100} />
-            </div>
-          </BentoCard>
-        </motion.div>
-
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-1">
-          <BentoCard title="Activity" colSpan="sm">
-            <div className="flex items-center justify-center py-2">
-              <ScoreGauge score={scores.activityScore} label="Repo Count" size={100} />
-            </div>
-          </BentoCard>
-        </motion.div>
-
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-1">
-          <BentoCard title="Versatility" colSpan="sm">
-            <div className="flex items-center justify-center py-2">
-              <ScoreGauge score={scores.versatilityScore} label="Languages" size={100} />
-            </div>
-          </BentoCard>
-        </motion.div>
-
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-1">
-          <BentoCard title="Clout" colSpan="sm">
-            <div className="flex items-center justify-center py-2">
-              <ScoreGauge score={scores.cloutScore} label="Followers" size={100} />
             </div>
           </BentoCard>
         </motion.div>

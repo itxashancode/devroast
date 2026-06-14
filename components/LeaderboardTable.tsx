@@ -23,19 +23,73 @@ const SORT_LABELS: Record<SortKey, string> = {
   activityScore: "Activity",
 };
 
-// Rank medal colors for top 3
-const RANK_STYLES: Record<number, string> = {
-  1: "text-yellow-400",
-  2: "text-slate-400",
-  3: "text-amber-600",
-};
+// Score → color matching the ring scale (low/mid/high)
+function scoreColor(s: number): string {
+  if (s >= 70) return "#2ed9a0";
+  if (s >= 40) return "#eab308";
+  return "#ef4444";
+}
 
-// Rank icon for top 3
+// Styled circular rank badge — gold / silver / bronze / plain dim
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-base" title="1st place">🥇</span>;
-  if (rank === 2) return <span className="text-base" title="2nd place">🥈</span>;
-  if (rank === 3) return <span className="text-base" title="3rd place">🥉</span>;
-  return <span className="text-text-muted tabular-nums text-sm">{rank}</span>;
+  const top3: Record<number, { bg: string; border: string; color: string }> = {
+    1: { bg: "rgba(234,179,8,0.13)",   border: "rgba(234,179,8,0.55)",   color: "#eab308" },
+    2: { bg: "rgba(148,163,184,0.13)", border: "rgba(148,163,184,0.55)", color: "#94a3b8" },
+    3: { bg: "rgba(180,112,60,0.13)",  border: "rgba(180,112,60,0.55)",  color: "#b4703c" },
+  };
+
+  if (rank <= 3) {
+    const s = top3[rank];
+    return (
+      <span
+        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-black tabular-nums"
+        style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}
+        title={`${rank}${rank === 1 ? "st" : rank === 2 ? "nd" : "rd"} place`}
+      >
+        {rank}
+      </span>
+    );
+  }
+
+  // Ranks 4+ — subtle dim ring
+  return (
+    <span
+      className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums text-text-muted"
+      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+    >
+      {rank}
+    </span>
+  );
+}
+
+// Inline score number + mini progress bar
+function ScoreBar({ value }: { value: number }) {
+  if (value == null) {
+    return <span className="text-text-muted/40 tabular-nums text-sm">—</span>;
+  }
+  const pct = Math.min(100, Math.max(0, value));
+  const color = scoreColor(value);
+
+  return (
+    <div className="flex flex-col gap-1.5 min-w-[52px]">
+      <span className="text-sm font-bold tabular-nums leading-none" style={{ color }}>
+        {value}
+      </span>
+      <div
+        className="h-[3px] w-full rounded-full overflow-hidden"
+        style={{ background: "rgba(255,255,255,0.06)" }}
+      >
+        <div
+          className="h-full rounded-full"
+          style={{
+            width: `${pct}%`,
+            background: color,
+            boxShadow: `0 0 5px ${color}55`,
+          }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
@@ -79,27 +133,35 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm" role="table">
+
+        {/* ── Header ── */}
         <thead>
-          <tr className="border-b border-border">
-            <th className="pb-3 pr-4 text-[10px] font-semibold uppercase tracking-widest text-text-muted w-10">
+          <tr style={{ borderBottom: "2px solid rgba(255,255,255,0.06)" }}>
+            <th className="pb-4 pr-4 w-12 text-[10px] font-semibold uppercase tracking-[0.16em] text-text-muted">
               #
             </th>
-            <th className="pb-3 pr-6 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+            <th className="pb-4 pr-6 text-[10px] font-semibold uppercase tracking-[0.16em] text-text-muted">
               Developer
             </th>
 
             {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
               <th
                 key={key}
-                className={`pb-3 px-3 text-[10px] font-semibold uppercase tracking-widest cursor-pointer select-none transition-colors duration-150
+                className={`pb-4 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] cursor-pointer select-none transition-colors duration-150
                   ${sortKey === key ? "text-accent" : "text-text-muted hover:text-text-secondary"}
                 `}
                 onClick={() => toggleSort(key)}
-                aria-sort={sortKey === key ? (sortDir === "desc" ? "descending" : "ascending") : "none"}
+                aria-sort={
+                  sortKey === key
+                    ? sortDir === "desc"
+                      ? "descending"
+                      : "ascending"
+                    : "none"
+                }
               >
                 <span className="flex items-center gap-1">
                   {SORT_LABELS[key]}
-                  <span className="opacity-60">
+                  <span className="opacity-50 text-[9px]">
                     {sortKey === key ? (sortDir === "desc" ? "↓" : "↑") : "↕"}
                   </span>
                 </span>
@@ -108,41 +170,58 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
           </tr>
         </thead>
 
+        {/* ── Body ── */}
         <tbody>
           {sorted.map((entry, index) => {
             const rank = index + 1;
             const isTop3 = rank <= 3;
+            const isEven = index % 2 === 1;
             const score = entry.totalScore ?? 0;
+
+            // Base bg: top-3 gets a faint mint tint, even rows get a very subtle stripe
+            const baseBg = isTop3
+              ? "rgba(46,217,160,0.025)"
+              : isEven
+              ? "rgba(255,255,255,0.014)"
+              : "transparent";
 
             return (
               <tr
                 key={entry.username}
-                className={`
-                  border-b border-border/40 transition-colors duration-150 group
-                  ${isTop3 ? "bg-accent-muted/30" : "hover:bg-surface-hover"}
-                `}
+                className="transition-colors duration-150 cursor-pointer"
+                style={{
+                  background: baseBg,
+                  borderBottom: "1px solid rgba(255,255,255,0.04)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "rgba(255,255,255,0.045)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = baseBg;
+                }}
               >
-                {/* Rank */}
-                <td className="py-3.5 pr-4 w-10">
+                {/* Rank badge */}
+                <td className="py-4 pr-4 w-12">
                   <RankBadge rank={rank} />
                 </td>
 
                 {/* Developer */}
-                <td className="py-3.5 pr-6">
+                <td className="py-4 pr-6">
                   <a
                     href={`/report/${entry.username}`}
-                    className="flex items-center gap-3 group/link cursor-pointer"
+                    className="flex items-center gap-3 group/link"
                     aria-label={`View ${entry.username}'s report`}
                   >
                     <img
                       src={entry.avatar_url}
                       alt={entry.username}
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 rounded-full border border-border group-hover/link:border-accent/40 transition-colors"
+                      width={36}
+                      height={36}
+                      className="h-9 w-9 rounded-full border border-border group-hover/link:border-accent/40 transition-colors shrink-0"
                     />
                     <div className="flex flex-col min-w-0">
-                      <span className="font-medium text-text-primary group-hover/link:text-accent transition-colors truncate">
+                      <span className="font-semibold text-text-primary group-hover/link:text-accent transition-colors truncate">
                         {entry.name || entry.username}
                       </span>
                       {entry.name && entry.name !== entry.username && (
@@ -154,26 +233,19 @@ export default function LeaderboardTable({ entries }: LeaderboardTableProps) {
                   </a>
                 </td>
 
-                {/* Dev Score */}
-                <td className="py-3.5 px-3">
-                  <span
-                    className="text-lg font-bold tabular-nums"
-                    style={{
-                      color: score >= 75 ? "#34d399" : score >= 50 ? "#10b981" : score >= 25 ? "#f59e0b" : "#ef4444",
-                    }}
-                  >
-                    {score}
-                  </span>
+                {/* Dev Score with bar */}
+                <td className="py-4 px-3">
+                  <ScoreBar value={score} />
                 </td>
 
-                {/* Impact */}
-                <td className="py-3.5 px-3 text-text-secondary tabular-nums">
-                  {entry.impactScore ?? "—"}
+                {/* Impact with bar */}
+                <td className="py-4 px-3">
+                  <ScoreBar value={entry.impactScore} />
                 </td>
 
-                {/* Activity */}
-                <td className="py-3.5 px-3 text-text-secondary tabular-nums">
-                  {entry.activityScore ?? "—"}
+                {/* Activity with bar */}
+                <td className="py-4 px-3">
+                  <ScoreBar value={entry.activityScore} />
                 </td>
               </tr>
             );

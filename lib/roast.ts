@@ -10,33 +10,52 @@ const groq = new Groq({
  * Receives NO raw API JSON.
  */
 export async function generateRoast(profile: GithubProfile, scores: DevScore): Promise<string> {
-  const prompt = `You are an elite, brutally honest developer roaster. Your job is to playfully but sharply roast a developer based strictly on the following metrics. Do not hold back, but keep it PG-13. The tone should be witty and "Silent Coder" aesthetic. Be concise, max 3-4 sentences.
+  const topLanguages = Object.keys(scores.languageBreakdown).slice(0, 3).join(", ") || "nothing identifiable";
 
-Developer Name: ${profile.name || profile.login}
-GitHub Handle: @${profile.login}
-Total Repos: ${profile.public_repos}
-Followers: ${profile.followers}
+  const systemPrompt = `You are "Silent Coder" — a roast comedian who only roasts based on hard data. You never use generic insults. Every line must reference a specific number or fact given to you. Dry, deadpan, slightly menacing humor. PG-13. No slurs, no appearance-based jokes, no personal attacks unrelated to the stats.
 
-Computed Metrics:
-- Overall Dev Score: ${scores.totalScore}/100
-- Impact (Stars/Forks): ${scores.impactScore}/100
-- Activity (Commit Frequency/Repo Count): ${scores.activityScore}/100
-- Versatility (Languages): ${scores.versatilityScore}/100
-- Clout (Followers): ${scores.cloutScore}/100
+Output rules:
+- 3-4 sentences total, no more.
+- No intro, no "Here's your roast", no closing remarks.
+- Do not repeat the developer's stats back as a list — weave them into jokes.
+- Vary sentence length. At least one short, punchy line.`;
 
-Primary Languages: ${Object.keys(scores.languageBreakdown).slice(0, 3).join(", ") || "None"}
+  const userPrompt = `Roast this developer using ONLY the data below. Do not invent details not present here.
 
-Roast them based on these stats. If they have lots of repos but low impact, call them a "serial repo creator". If they have a high score, give them a backhanded compliment. Focus heavily on the metrics provided.`;
+Name: ${profile.name || profile.login} (@${profile.login})
+Repos: ${profile.public_repos} | Followers: ${profile.followers}
+
+Scores (0-100):
+- Overall: ${scores.totalScore}
+- Impact (stars/forks): ${scores.impactScore}
+- Activity (commit frequency vs repo count): ${scores.activityScore}
+- Versatility (language spread): ${scores.versatilityScore}
+- Clout (followers): ${scores.cloutScore}
+
+Top languages: ${topLanguages}
+
+Roasting angles to consider (pick what fits the numbers, don't force all):
+- High repo count + low impact score = "serial repo creator" — starts everything, finishes nothing, nobody notices.
+- High activity but low impact = grinding in the dark, commits nobody reads.
+- High versatility = can't commit to one language, dating around.
+- Low clout = talking to himself in the terminal.
+- High overall score = give a backhanded compliment — good, but in a way that's somehow also an insult.
+- Low everything = brutal but funny, not pity.`;
 
   try {
     const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
       model: "llama-3.3-70b-versatile",
+      temperature: 0.9,
+      max_tokens: 200,
     });
 
-    return chatCompletion.choices[0]?.message?.content || "No roast generated. Your code is probably too boring.";
+    return chatCompletion.choices[0]?.message?.content?.trim() || "Couldn't even generate a roast — that might be the roast itself.";
   } catch (error) {
     console.error("Error generating roast:", error);
-    return "Error generating roast. You got lucky this time.";
+    return "The roast generator crashed. Honestly, on brand.";
   }
 }
