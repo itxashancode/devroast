@@ -74,12 +74,15 @@ export default function RootLayout({
         {/* Add padding to top of main to account for fixed header */}
         <main className="flex-1 pt-24">{children}</main>
 
-        <footer className="border-t border-border py-5 text-center">
+        <footer className="border-t border-border py-5 text-center flex flex-col items-center gap-2">
           <p className="text-xs text-text-muted">
             Built for{" "}
             <span className="text-accent font-medium">Devlynix Buildathon 2.0</span>
             {" "}· {new Date().getFullYear()}
           </p>
+          <a href="/privacy" className="text-[10px] text-text-muted/60 hover:text-accent transition-colors">
+            Privacy Policy
+          </a>
         </footer>
         <Analytics />
       </body>
