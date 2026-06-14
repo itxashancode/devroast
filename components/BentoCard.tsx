@@ -68,7 +68,7 @@ export default function BentoCard({
           </h3>
         ) : (
           /* Standard label */
-          <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-muted flex items-center gap-2">
+          <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-muted flex items-center gap-2">
             <span className="h-px flex-1 bg-border" />
             {title}
             <span className="h-px flex-1 bg-border" />

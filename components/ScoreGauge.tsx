@@ -3,6 +3,7 @@
 interface ScoreGaugeProps {
   score: number;
   label: string;
+  description?: string;
   size?: number;
   strokeWidth?: number;
 }
@@ -10,6 +11,7 @@ interface ScoreGaugeProps {
 export default function ScoreGauge({
   score,
   label,
+  description,
   size = 100,
   strokeWidth = 8,
 }: ScoreGaugeProps) {
@@ -33,33 +35,6 @@ export default function ScoreGauge({
     if (s < 70) return "Mid";
     return "High";
   };
-
-  const getSubLabel = (lbl: string, s: number) => {
-    const l = lbl.toLowerCase();
-    if (l.includes("stars") || l.includes("fork") || l.includes("impact")) {
-      if (s < 40) return "under the radar";
-      if (s < 70) return "gaining traction";
-      return "highly influential";
-    }
-    if (l.includes("repo") || l.includes("count") || l.includes("activity")) {
-      if (s < 40) return "dormant";
-      if (s < 70) return "active contributor";
-      return "grinding daily";
-    }
-    if (l.includes("language") || l.includes("versatility")) {
-      if (s < 40) return "focused specialist";
-      if (s < 70) return "adaptive polyglot";
-      return "full-stack wizard";
-    }
-    if (l.includes("follower") || l.includes("clout")) {
-      if (s < 40) return "low profile";
-      if (s < 70) return "rising developer";
-      return "industry pioneer";
-    }
-    return null;
-  };
-
-  const subLabel = getSubLabel(label, clampedScore);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -133,13 +108,13 @@ export default function ScoreGauge({
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-0.5 text-center">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+      <div className="flex flex-col items-center gap-0.5 text-center mt-1">
+        <span className="text-[11px] font-bold uppercase tracking-widest text-text-primary">
           {label}
         </span>
-        {subLabel && (
-          <span className="text-[11px] font-medium text-accent-secondary opacity-90 tracking-wide">
-            {subLabel}
+        {description && (
+          <span className="text-[9px] font-medium uppercase tracking-[0.15em] text-text-muted">
+            {description}
           </span>
         )}
       </div>

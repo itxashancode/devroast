@@ -212,7 +212,7 @@ export default function ReportPage() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 grid-flow-row-dense auto-rows-[130px]"
+        className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 grid-flow-row-dense auto-rows-[140px]"
       >
 
         {/* ── Profile Header (full width, 2 rows) ── */}
@@ -312,36 +312,36 @@ export default function ReportPage() {
 
         {/* ── Impact (1 col, 1 row) ── */}
         <motion.div variants={cardVariants} className="col-span-1 row-span-1">
-          <BentoCard title="Impact" colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-4 hover:bg-surface-hover h-full">
-            <div className="flex items-center justify-center h-full pb-1">
-              <ScoreGauge score={scores.impactScore} label="Stars & Forks" size={90} strokeWidth={7} />
+          <BentoCard colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-3 hover:bg-surface-hover h-full">
+            <div className="flex items-center justify-center h-full">
+              <ScoreGauge score={scores.impactScore} label="Impact" description="Stars & Forks" size={70} strokeWidth={6} />
             </div>
           </BentoCard>
         </motion.div>
 
         {/* ── Activity (1 col, 1 row) ── */}
         <motion.div variants={cardVariants} className="col-span-1 row-span-1">
-          <BentoCard title="Activity" colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-4 hover:bg-surface-hover h-full">
-            <div className="flex items-center justify-center h-full pb-1">
-              <ScoreGauge score={scores.activityScore} label="Commit Frequency" size={90} strokeWidth={7} />
+          <BentoCard colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-3 hover:bg-surface-hover h-full">
+            <div className="flex items-center justify-center h-full">
+              <ScoreGauge score={scores.activityScore} label="Activity" description="Commit Freq" size={70} strokeWidth={6} />
             </div>
           </BentoCard>
         </motion.div>
 
         {/* ── Versatility (1 col, 1 row) ── */}
         <motion.div variants={cardVariants} className="col-span-1 row-span-1">
-          <BentoCard title="Versatility" colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-4 hover:bg-surface-hover h-full">
-            <div className="flex items-center justify-center h-full pb-1">
-              <ScoreGauge score={scores.versatilityScore} label="Languages" size={90} strokeWidth={7} />
+          <BentoCard colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-3 hover:bg-surface-hover h-full">
+            <div className="flex items-center justify-center h-full">
+              <ScoreGauge score={scores.versatilityScore} label="Versatility" description="Languages" size={70} strokeWidth={6} />
             </div>
           </BentoCard>
         </motion.div>
 
         {/* ── Clout (1 col, 1 row) ── */}
         <motion.div variants={cardVariants} className="col-span-1 row-span-1">
-          <BentoCard title="Clout" colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-4 hover:bg-surface-hover h-full">
-            <div className="flex items-center justify-center h-full pb-1">
-              <ScoreGauge score={scores.cloutScore} label="Followers" size={90} strokeWidth={7} />
+          <BentoCard colSpan="sm" rowSpan={1} className="rounded-2xl bg-surface-subscore p-3 hover:bg-surface-hover h-full">
+            <div className="flex items-center justify-center h-full">
+              <ScoreGauge score={scores.cloutScore} label="Clout" description="Followers" size={70} strokeWidth={6} />
             </div>
           </BentoCard>
         </motion.div>
