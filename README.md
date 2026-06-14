@@ -1,68 +1,126 @@
-# DevRoast — GitHub Developer Roast & Proof-of-Work Generator
+# DevRoast
 
-Built for Devlynix Buildathon 2.0, Track 5 (Dynamic Proof-of-Work Generator).
+A dynamic Proof-of-Work (PoW) generator and scoring engine for GitHub profiles. Built on Next.js App Router, it fetches live repository data, computes weighted developer metrics, and utilizes an LLM to generate a customized profile analysis.
 
-## 1. What This Project Is
+## System Architecture
 
-A web app where a user enters a GitHub username. The app fetches their live public GitHub data, runs it through a custom scoring engine to produce a "Dev Score" and sub-scores, caches the results in MongoDB, generates a roast using an LLM (Groq) grounded in the computed stats, and renders everything as a shareable Bento-grid report card. There is also a global leaderboard of every profile that's been scanned.
+```mermaid
+graph TD
+    Client[Client Browser] -->|GET /report/:username| NextJS[Next.js App Router]
+    NextJS -->|GET /api/scan| API[Orchestration API]
+    
+    API -->|Fetch Public Data| GitHub[GitHub REST API]
+    API -->|Compute Weights| Engine[Scoring Engine]
+    API -->|Generate Roast| Groq[Groq / Llama 3]
+    
+    API -->|Read/Write Cache| Mongo[(MongoDB Atlas)]
+    
+    GitHub -.-> API
+    Engine -.-> API
+    Groq -.-> API
+    
+    API -->|Return Normalized Payload| NextJS
+    NextJS -->|Render Bento Grid| Client
+```
 
-### Non-Negotiable Constraints
-1. **No mock data:** All data must come from the real GitHub REST API.
-2. **Scoring Engine:** A pure, testable, side-effect-free function (`lib/scoring.ts`).
-3. **LLM Grounding:** LLM prompt receives computed scores, not raw API JSON.
-4. **Database Normalization:** MongoDB requires 3 distinct collections: `profiles`, `scores`, `leaderboard`.
-5. **Aesthetics:** "Silent Coder" aesthetic (deep charcoal, forest green accents, Bento grid). No generic templates or placeholders.
-6. **Explainable Code:** Code must be simple enough for the team to explain on camera for the judges.
+## Technical Stack
 
----
+*   **Framework:** Next.js 15 (App Router, React 19)
+*   **Styling:** Tailwind CSS v4
+*   **Language:** TypeScript (Strict mode enabled)
+*   **Database:** MongoDB Atlas (Mongoose)
+*   **AI/LLM:** Groq API (Llama-3.3-70b-versatile)
+*   **Performance:** `@chenglou/pretext` for zero-layout-shift UI streaming, Upstash/Redis rate limiting
 
-## 2. What Has Been Completed (Agent A's Work)
+## Core Data Flow
 
-**Agent A (Data & Scoring Slice) has completed the following:**
+The application executes a sequence of data normalization and scoring without utilizing mock data. The scoring engine operates as a pure, testable function.
 
-- [x] **Next.js Foundation:** Initialized Next.js App Router project with Tailwind CSS and TypeScript in the root directory.
-- [x] **TypeScript Types:** Created `types/index.ts` defining `GithubProfile`, `GithubRepo`, and `DevScore`.
-- [x] **Data Fetching Logic:** Implemented `lib/github.ts` to fetch and normalize public GitHub data, supporting an optional `GITHUB_TOKEN`.
-- [x] **Pure Scoring Engine:** Implemented `lib/scoring.ts` to calculate the `DevScore`, weighting both Impact (stars/forks) and Activity (commit frequency/repos), Versatility (languages), and Clout (followers).
-- [x] **Testing:** Verified the fetching and scoring math works successfully with a test script.
+```mermaid
+sequenceDiagram
+    participant User
+    participant App as Next.js API
+    participant GH as GitHub API
+    participant Score as Scoring Engine
+    participant Groq as Groq LLM
+    participant DB as MongoDB
 
----
+    User->>App: Request Profile (e.g., /api/scan?username=torvalds)
+    App->>DB: Check Cache
+    alt Cache Hit
+        DB-->>App: Return Cached Profile
+    else Cache Miss
+        App->>GH: Fetch User & Repos
+        GH-->>App: Raw JSON Data
+        App->>Score: calculateDevScore(user, repos)
+        Score-->>App: { impact, activity, versatility, clout, total }
+        App->>Groq: Generate Roast (Prompt injected with scores)
+        Groq-->>App: Streaming Text Response
+        App->>DB: Upsert Profile & Scores
+    end
+    App-->>User: Render Bento Grid Report
+```
 
-## 3. What is Left (Everything Else)
+## Scoring Engine Mechanics
 
-The remaining work is divided into two parts for the rest of the team:
+The `calculateDevScore` function (`lib/scoring.ts`) computes a weighted `DevScore` from 0-100 based on four primary vectors:
 
-### Done: Agent B (Frontend/UI) ✓
-- [x] **Tailwind v4 Theme:** Configured CSS-first design tokens in `globals.css` — deep charcoal `#121212`, forest green `#10B981`, surface/ border/ text colors, custom animations.
-- [x] **Layout (`app/layout.tsx`):** Added DevRoast branding, navigation bar with Leaderboard link, footer.
-- [x] **Landing Page (`app/page.tsx`):** Username input form with @ prefix, Scan button, loading state, leaderboard link.
-- [x] **BentoCard:** Reusable grid card with `colSpan` / `rowSpan` variants (sm/md/lg/xl).
-- [x] **ScoreGauge:** Circular SVG gauge with color thresholds (red/amber/green), configurable size.
-- [x] **LanguageBreakdown:** Horizontal bars with per-language colors, count labels, empty state.
-- [x] **RoastCard:** Blockquote-style roast display with decorative quotemarks.
-- [x] **LeaderboardTable:** Sortable table (Dev Score, sub-scores, followers, repos), rank numbers, empty state.
-- [x] **Report Page (`/app/report/[username]/page.tsx`):** Fetches `/api/scan`, renders Bento grid: avatar card + total score gauge + 4 sub-score gauges + languages + roast. Loading spinner and error state included.
-- [x] **Leaderboard Page (`/app/leaderboard/page.tsx`):** Fetches `/api/leaderboard`, renders sortable table. Loading and error states included.
-- [x] **Build:** Verified `next build` compiles with zero errors.
+1.  **Impact (40%):** Stars and forks across public repositories.
+2.  **Activity (30%):** Commit frequency and recent repository updates.
+3.  **Versatility (15%):** Number of unique languages utilized.
+4.  **Clout (15%):** Follower-to-following ratio and sheer follower volume.
 
-### To Do: Agent C (Infra, LLM, Database, Integration)
-- [ ] **Database Connection (`lib/db.ts`):** Connect to MongoDB Atlas and configure collections (`profiles` with TTL, `scores`, `leaderboard`).
-- [ ] **LLM Integration (`lib/roast.ts`):** Implement the Groq API call to generate a short, punchy roast grounded in the `DevScore` metrics.
-- [ ] **Orchestration API (`/app/api/scan/route.ts`):** 
-    - Receive username.
-    - Call `fetchGithubProfile` & `fetchGithubRepos` (Agent A's logic).
-    - Call `calculateDevScore` (Agent A's logic).
-    - Call the LLM to get the roast.
-    - Save/update all normalized data in MongoDB.
-    - Return the payload to the frontend.
-- [ ] **Leaderboard API (`/app/api/leaderboard/route.ts`):** Endpoint to read sorted scores from the DB.
-- [ ] **Deployment:** Ensure the app builds locally and deploys successfully to Vercel without console errors.
+## Database Schema
 
-## Definition of Done for MVP
-1. Username input -> live GitHub fetch -> raw data normalized **(Done - Agent A)**
-2. Scoring engine produces composite Dev Score + 4 sub-scores **(Done - Agent A)**
-3. Results cached in MongoDB (profiles + scores collections) **(Pending - Agent C)**
-4. Bento report card renders all scores + language breakdown **(Done - Agent B)**
-5. LLM roast generated from computed scores, displayed on report card **(Pending - Agent C)**
-6. Leaderboard page reads from leaderboard collection, sorted by Dev Score **(Pending - Agent C)**
-7. Deployed to Vercel, working end to end with a real username **(Pending - Agent C)**
+```mermaid
+erDiagram
+    PROFILES {
+        string username PK
+        string avatarUrl
+        string bio
+        int publicRepos
+        int followers
+        date updatedAt
+    }
+    SCORES {
+        string username FK
+        int totalScore
+        int impactScore
+        int activityScore
+        int versatilityScore
+        int cloutScore
+        string roast
+    }
+    PROFILES ||--o| SCORES : "1-to-1 mapping"
+```
+
+## Setup & Local Development
+
+1.  **Clone & Install**
+    ```bash
+    git clone https://github.com/itxashancode/devroast.git
+    cd devroast
+    npm install
+    ```
+
+2.  **Environment Variables**
+    Create a `.env.local` file in the root directory:
+    ```env
+    # Optional: Increases API rate limits from 60 to 5000 req/hr
+    GITHUB_TOKEN=your_github_personal_access_token
+
+    # Required: Groq API key for LLM generation
+    GROQ_API_KEY=your_groq_api_key
+
+    # Required: MongoDB connection string
+    MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/devroast
+    ```
+
+3.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
+    Access the application at `http://localhost:3000`.
+
+## License
+MIT
