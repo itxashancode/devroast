@@ -35,12 +35,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-text-primary">
-        {/* Sticky glassmorphism nav */}
-        <header className="sticky top-0 z-50 glass border-b border-border">
-          <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
+        {/* Floating Solidroad-style nav */}
+        <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+          <nav className="pointer-events-auto flex items-center justify-between gap-8 px-5 py-2.5 bg-surface/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl ring-1 ring-black/5">
             <a
               href="/"
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2 group hover:opacity-80 transition-opacity"
               aria-label="DevRoast home"
             >
               {/* Accent pulse dot */}
@@ -48,22 +48,21 @@ export default function RootLayout({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-60"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
               </span>
-              <span className="text-lg font-bold tracking-tight">
+              <span className="text-base font-bold tracking-tight">
                 <span className="text-gradient">devroast</span>
-                <span className="text-text-muted font-mono text-sm">.dev</span>
               </span>
             </a>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-1">
               <a
                 href="/leaderboard"
-                className="text-sm text-text-secondary hover:text-accent transition-colors duration-200 cursor-pointer"
+                className="text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-white/5 px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer"
               >
                 Leaderboard
               </a>
               <a
                 href="/"
-                className="text-sm text-text-muted hover:text-text-primary transition-colors duration-200 cursor-pointer"
+                className="text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-white/5 px-3 py-1.5 rounded-full transition-all duration-200 cursor-pointer"
               >
                 Scan
               </a>
@@ -71,7 +70,8 @@ export default function RootLayout({
           </nav>
         </header>
 
-        <main className="flex-1">{children}</main>
+        {/* Add padding to top of main to account for fixed header */}
+        <main className="flex-1 pt-24">{children}</main>
 
         <footer className="border-t border-border py-5 text-center">
           <p className="text-xs text-text-muted">
