@@ -16,11 +16,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for Next.js dev/Turbopack
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com", // unsafe-eval needed for Next.js dev/Turbopack
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' https://avatars.githubusercontent.com data: blob:",
-      "connect-src 'self' https://*.supabase.co https://api.github.com https://api.groq.com",
+      "connect-src 'self' https://*.supabase.co https://api.github.com https://api.groq.com https://vitals.vercel-insights.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
