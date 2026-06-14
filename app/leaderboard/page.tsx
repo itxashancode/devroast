@@ -62,13 +62,8 @@ export default function LeaderboardPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="flex items-center gap-2 text-accent animate-pulse-glow">
-            <div className="h-2 w-2 rounded-full bg-accent" />
-            <div className="h-2 w-2 rounded-full bg-accent" />
-            <div className="h-2 w-2 rounded-full bg-accent" />
-          </div>
-          <p className="ml-3 text-sm text-text-muted">Loading leaderboard...</p>
+        <div className="flex items-center justify-center py-24">
+          <div className="loader" />
         </div>
       ) : error ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">

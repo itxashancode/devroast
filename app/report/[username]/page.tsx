@@ -116,15 +116,8 @@ export default function ReportPage() {
     return (
       <div className="mx-auto flex min-h-[72vh] max-w-5xl flex-col items-center justify-center px-4 gap-6">
         <div className="flex flex-col items-center gap-6">
-          <div className="flex items-center gap-2">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                animate={{ y: [0, -8, 0], scale: [1, 1.15, 1] }}
-                transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-                className="h-3 w-3 rounded-full bg-accent"
-              />
-            ))}
+          <div className="flex items-center justify-center">
+            <div className="loader" />
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-sm font-mono text-text-muted">

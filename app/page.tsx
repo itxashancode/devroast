@@ -99,7 +99,7 @@ export default function Home() {
             initial={{ filter: "blur(8px)", opacity: 0 }}
             animate={{ filter: "blur(0px)", opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-6xl font-black tracking-tighter sm:text-7xl text-gradient select-none"
+            className="text-5xl font-black tracking-tighter sm:text-6xl lg:text-7xl text-gradient select-none"
           >
             devroast<span className="text-accent">.</span>
           </motion.h1>
@@ -182,11 +182,7 @@ export default function Home() {
                 className="rounded-xl bg-accent px-8 py-3 text-sm sm:text-base font-bold text-surface transition-all duration-300 hover:bg-accent-hover hover:shadow-[0_0_24px_rgba(46,217,160,0.5)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none cursor-pointer flex items-center justify-center min-w-[140px] shadow-[0_0_12px_rgba(46,217,160,0.3)]"
               >
                 {loading ? (
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-surface animate-bounce" style={{animationDelay:"0ms"}} />
-                    <span className="h-2 w-2 rounded-full bg-surface animate-bounce" style={{animationDelay:"150ms"}} />
-                    <span className="h-2 w-2 rounded-full bg-surface animate-bounce" style={{animationDelay:"300ms"}} />
-                  </span>
+                  <div className="loader" />
                 ) : (
                   "Scan Profile"
                 )}
