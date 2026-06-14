@@ -32,12 +32,18 @@ A web app where a user enters a GitHub username. The app fetches their live publ
 
 The remaining work is divided into two parts for the rest of the team:
 
-### To Do: Agent B (Frontend/UI)
-- [ ] **Tailwind Setup:** Configure `tailwind.config.ts` for the "Silent Coder" aesthetic (deep charcoal `#121212`, forest green `#10B981` accents).
-- [ ] **Landing Page (`/app/page.tsx`):** Build a sleek username input form.
-- [ ] **Bento Components (`/components`):** Build `BentoCard.tsx`, `ScoreGauge.tsx`, `LanguageBreakdown.tsx`, and `RoastCard.tsx`.
-- [ ] **Report View (`/app/report/[username]/page.tsx`):** Render the fetched `DevScore` and roast text using the Bento components.
-- [ ] **Leaderboard View (`/app/leaderboard/page.tsx`):** Build the leaderboard UI components and table.
+### Done: Agent B (Frontend/UI) ✓
+- [x] **Tailwind v4 Theme:** Configured CSS-first design tokens in `globals.css` — deep charcoal `#121212`, forest green `#10B981`, surface/ border/ text colors, custom animations.
+- [x] **Layout (`app/layout.tsx`):** Added DevRoast branding, navigation bar with Leaderboard link, footer.
+- [x] **Landing Page (`app/page.tsx`):** Username input form with @ prefix, Scan button, loading state, leaderboard link.
+- [x] **BentoCard:** Reusable grid card with `colSpan` / `rowSpan` variants (sm/md/lg/xl).
+- [x] **ScoreGauge:** Circular SVG gauge with color thresholds (red/amber/green), configurable size.
+- [x] **LanguageBreakdown:** Horizontal bars with per-language colors, count labels, empty state.
+- [x] **RoastCard:** Blockquote-style roast display with decorative quotemarks.
+- [x] **LeaderboardTable:** Sortable table (Dev Score, sub-scores, followers, repos), rank numbers, empty state.
+- [x] **Report Page (`/app/report/[username]/page.tsx`):** Fetches `/api/scan`, renders Bento grid: avatar card + total score gauge + 4 sub-score gauges + languages + roast. Loading spinner and error state included.
+- [x] **Leaderboard Page (`/app/leaderboard/page.tsx`):** Fetches `/api/leaderboard`, renders sortable table. Loading and error states included.
+- [x] **Build:** Verified `next build` compiles with zero errors.
 
 ### To Do: Agent C (Infra, LLM, Database, Integration)
 - [ ] **Database Connection (`lib/db.ts`):** Connect to MongoDB Atlas and configure collections (`profiles` with TTL, `scores`, `leaderboard`).
@@ -56,7 +62,7 @@ The remaining work is divided into two parts for the rest of the team:
 1. Username input -> live GitHub fetch -> raw data normalized **(Done - Agent A)**
 2. Scoring engine produces composite Dev Score + 4 sub-scores **(Done - Agent A)**
 3. Results cached in MongoDB (profiles + scores collections) **(Pending - Agent C)**
-4. Bento report card renders all scores + language breakdown **(Pending - Agent B)**
+4. Bento report card renders all scores + language breakdown **(Done - Agent B)**
 5. LLM roast generated from computed scores, displayed on report card **(Pending - Agent C)**
-6. Leaderboard page reads from leaderboard collection, sorted by Dev Score **(Pending - Agent B & C)**
+6. Leaderboard page reads from leaderboard collection, sorted by Dev Score **(Pending - Agent C)**
 7. Deployed to Vercel, working end to end with a real username **(Pending - Agent C)**

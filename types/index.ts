@@ -63,4 +63,5 @@ export interface DevScore {
   versatilityScore: number;
   cloutScore: number;
   languageBreakdown: Record<string, number>;
+  tips: string[];
 }

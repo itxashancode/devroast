@@ -43,12 +43,35 @@ export function calculateDevScore(profile: GithubProfile, repos: GithubRepo[]): 
     (cloutScore * 0.15)
   );
 
+  // 7. Generate actionable tips
+  const tips: string[] = [];
+  if (impactScore < 50) {
+    tips.push("Improve your READMEs: add live demos, gifs, and clean setup guides to attract more stargazers.");
+  }
+  if (activityScore < 50) {
+    tips.push("Commit more consistently: push progress regularly to build up your green GitHub contribution graph.");
+  }
+  if (versatilityScore < 40) {
+    tips.push("Expand your tech stack: build a project in a new language (e.g. Go, Rust, or Python) to show versatility.");
+  }
+  if (cloutScore < 40) {
+    tips.push("Grow your audience: contribute to public repos, share your work on social platforms, and network with builders.");
+  }
+  const missingDescCount = originalRepos.filter(r => !r.description).length;
+  if (originalRepos.length > 0 && (missingDescCount / originalRepos.length) > 0.3) {
+    tips.push("Professionalize your repos: add descriptions and topics/tags to your existing repositories for better search visibility.");
+  }
+  if (tips.length === 0) {
+    tips.push("Excellent profile! Continue building high-impact open-source tools and contributing to major projects.");
+  }
+
   return {
     totalScore,
     impactScore: Math.round(impactScore),
     activityScore: Math.round(activityScore),
     versatilityScore: Math.round(versatilityScore),
     cloutScore: Math.round(cloutScore),
-    languageBreakdown
+    languageBreakdown,
+    tips
   };
 }

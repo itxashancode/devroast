@@ -11,7 +11,7 @@ async function fetchFromGithub<T>(endpoint: string): Promise<T> {
   };
 
   const token = process.env.GITHUB_TOKEN;
-  if (token) {
+  if (token && !token.includes("xxxx")) {
     headers['Authorization'] = `token ${token}`;
   }
 

@@ -4,22 +4,6 @@
     "type": "split",
     "children": [
       {
-        "id": "cea4c4c8c744c7f2",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "a9bfd72f5ef110cf",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
-            }
-          }
-        ]
-      },
-      {
         "id": "c4fd30dab7355307",
         "type": "tabs",
         "children": [
@@ -90,7 +74,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "02809eccaa57597d",
