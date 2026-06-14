@@ -207,16 +207,16 @@ export default function ReportPage() {
         </a>
       </motion.div>
 
-      {/* Bento Grid — dense packing, 4-col desktop / 2-col tablet / 1-col mobile */}
+      {/* Bento Grid — dense packing, 4-col desktop / 2-col tablet / 2-col mobile base */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 grid-flow-row-dense auto-rows-[130px]"
+        className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 grid-flow-row-dense auto-rows-[130px]"
       >
 
         {/* ── Profile Header (full width, 2 rows) ── */}
-        <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-2">
+        <motion.div variants={cardVariants} className="col-span-2 lg:col-span-4 row-span-2">
           <BentoCard colSpan="xl" rowSpan={2} accent className="rounded-3xl bg-surface-header p-6 sm:p-8 hover:bg-surface-hover">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7 h-full">
               {/* Clickable avatar → GitHub profile */}
@@ -282,7 +282,7 @@ export default function ReportPage() {
         </motion.div>
 
         {/* ── AI Roast — Hero card (2 cols, dynamic rows) ── */}
-        <motion.div variants={cardVariants} className={`col-span-1 sm:col-span-2 row-span-${roastRowSpan}`}>
+        <motion.div variants={cardVariants} className="col-span-2" style={{ gridRow: `span ${roastRowSpan} / span ${roastRowSpan}` }}>
           <div className="relative rounded-3xl h-full" style={{ boxShadow: "0 0 40px rgba(168,85,247,0.14), 0 0 80px rgba(168,85,247,0.06)" }}>
             <div
               aria-hidden="true"
@@ -302,7 +302,7 @@ export default function ReportPage() {
         </motion.div>
 
         {/* ── Overall Dev Score (1 col, 2 rows) ── */}
-        <motion.div variants={cardVariants} className="col-span-1 row-span-2">
+        <motion.div variants={cardVariants} className="col-span-2 sm:col-span-1 row-span-2">
           <BentoCard title="Dev Score" colSpan="sm" rowSpan={2} className="rounded-3xl bg-surface-score p-5 sm:p-6 hover:bg-surface-hover h-full">
             <div className="flex h-full items-center justify-center">
               <ScoreGauge score={scores.totalScore} label="Overall" size={150} strokeWidth={11} />
@@ -347,14 +347,14 @@ export default function ReportPage() {
         </motion.div>
 
         {/* ── Languages (1 col, dynamic rows) ── */}
-        <motion.div variants={cardVariants} className={`col-span-1 row-span-${langRowSpan}`}>
+        <motion.div variants={cardVariants} className="col-span-2 sm:col-span-1" style={{ gridRow: `span ${langRowSpan} / span ${langRowSpan}` }}>
           <BentoCard title="Languages" colSpan="sm" rowSpan={langRowSpan as any} className="rounded-2xl bg-surface-languages p-5 sm:p-6 hover:bg-surface-hover h-full">
             <LanguageBreakdown languages={scores.languageBreakdown} />
           </BentoCard>
         </motion.div>
 
         {/* ── Action Plan (2 cols, dynamic rows) ── */}
-        <motion.div variants={cardVariants} className={`col-span-1 sm:col-span-2 row-span-${tipsRowSpan}`}>
+        <motion.div variants={cardVariants} className="col-span-2" style={{ gridRow: `span ${tipsRowSpan} / span ${tipsRowSpan}` }}>
           <BentoCard title="Action Plan" colSpan="md" rowSpan={tipsRowSpan as any} className="rounded-2xl bg-surface-action p-5 sm:p-6 hover:bg-surface-hover h-full">
             <div className="flex flex-col gap-3.5 py-1">
               {scores.tips && scores.tips.length > 0 ? (
@@ -376,7 +376,7 @@ export default function ReportPage() {
 
         {/* ── Latest Repos (full width, auto rows) ── */}
         {topRepos.length > 0 && (
-          <motion.div variants={cardVariants} className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-3">
+          <motion.div variants={cardVariants} className="col-span-2 lg:col-span-4 row-span-3">
             <BentoCard title="Latest Repositories" colSpan="xl" rowSpan={3} className="rounded-3xl bg-surface-header p-5 sm:p-6 hover:bg-surface-hover h-full">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 h-full content-start">
                 {topRepos.map((repo) => (
