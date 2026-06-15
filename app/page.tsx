@@ -4,6 +4,7 @@ import { useState, type FormEvent, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
+import CurvedLoop from "@/components/CurvedLoop";
 
 const SAMPLE_ROASTS = [
   "\"A solid 10x developer... if x is the number of unresolved merge conflicts.\"",
@@ -76,10 +77,26 @@ export default function Home() {
   }, []);
 
   return (
-    <div 
-      ref={containerRef}
-      className="relative mx-auto flex min-h-[82vh] max-w-4xl flex-col items-center justify-center px-4 overflow-hidden rounded-3xl"
-    >
+    <div className="relative w-full overflow-hidden">
+      {/* Edge-to-edge CurvedLoop Background following the valley curve line */}
+      <div 
+        className="absolute inset-x-0 top-[37%] pointer-events-none z-0 opacity-25 hover:opacity-60 transition-opacity duration-500"
+        aria-hidden="true"
+      >
+        <CurvedLoop
+          marqueeText="DevRoast ✦ GitHub Developer Report Card ✦ Scan Your Profile ✦"
+          speed={1.2}
+          curveAmount={320}
+          direction="left"
+          interactive={true}
+          className="text-accent text-[clamp(1rem,2.5vw,1.5rem)] font-bold"
+        />
+      </div>
+
+      <div 
+        ref={containerRef}
+        className="relative mx-auto flex min-h-[82vh] max-w-4xl flex-col items-center justify-center px-4 rounded-3xl z-10"
+      >
       {/* GSAP Cursor Glow Spotlight */}
       <div 
         ref={glowRef}
@@ -225,5 +242,6 @@ export default function Home() {
         </motion.a>
       </motion.div>
     </div>
+  </div>
   );
 }
